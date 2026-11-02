@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- No outside requests: no analytics, no CDNs, no fonts. Files stay on this device. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Unsubbed Cycle · Unsubbed</title>
+  <meta name="description" content="A free alternative to Flo and Clue. A private period tracker that runs in your browser; your data never leaves your device.">
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="kit.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="u-bar">
+    <a class="u-brand" href="./">
+      <img src="logo.svg" alt=""><span data-app-name>Unsubbed Cycle</span>
+    </a>
+    <button class="u-btn" data-import title="Open a file">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 15V3m0 0-4 4m4-4 4 4M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
+      <span class="label">Open</span>
+    </button>
+    <button class="u-btn" data-export title="Save a copy to your device">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
+      <span class="label">Save</span>
+    </button>
+    <button class="u-btn icon" data-settings title="Settings" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+    </button>
+    <a class="u-btn support" href="https://ko-fi.com/unsubbed" target="_blank" rel="noopener" title="Support development">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg>
+      <span class="label">Support</span>
+    </a>
+  </header>
+
+  <main id="app" class="cy">
+    <h1 class="cy-print-only">Cycle summary</h1>
+
+    <section class="u-card accent cy-today" aria-labelledby="today-h">
+      <h2 id="today-h">Today</h2>
+      <p class="cy-big" id="t-day"></p>
+      <div class="cy-strip" id="t-strip" aria-hidden="true"></div>
+      <p id="t-next"></p>
+      <p id="t-fert"></p>
+      <p class="u-note">Estimates only. Not medical advice and not birth control.</p>
+    </section>
+
+    <section class="u-card cy-cal" aria-labelledby="cal-h">
+      <div class="cy-print-only">
+        <h2 id="prev-h"></h2>
+        <div class="cy-week" aria-hidden="true"></div>
+        <div class="cy-grid" id="grid-prev"></div>
+      </div>
+      <div class="cy-calbar">
+        <button class="u-btn icon" id="prev" aria-label="Previous month">&lsaquo;</button>
+        <h2 id="cal-h" aria-live="polite"></h2>
+        <button class="u-btn icon" id="next" aria-label="Next month">&rsaquo;</button>
+        <button class="u-btn" id="go-today">Today</button>
+      </div>
+      <div class="cy-week" aria-hidden="true"></div>
+      <div class="cy-grid" id="grid" role="group" aria-label="Days. Arrow keys move between days, Page Up and Page Down change month."></div>
+      <ul class="cy-legend">
+        <li><i class="sw sw-flow"></i>Period</li>
+        <li><i class="sw sw-spot"></i>Spotting</li>
+        <li><i class="sw sw-pred"></i>Expected period</li>
+        <li><i class="sw sw-fert"></i>Likely fertile</li>
+        <li><i class="sw sw-ovu"></i>Likely ovulation</li>
+        <li><i class="sw sw-extra"></i>Has notes</li>
+      </ul>
+    </section>
+
+    <section class="u-card cy-day" id="day" aria-labelledby="day-h">
+      <h2 id="day-h"></h2>
+      <fieldset><legend>How heavy?</legend><div class="cy-opts" id="flow"></div></fieldset>
+      <fieldset><legend>Body</legend><div class="cy-opts" id="body"></div></fieldset>
+      <fieldset><legend>Mind</legend><div class="cy-opts" id="mind"></div></fieldset>
+      <label class="u-field"><span>Note</span><textarea id="note" rows="3" placeholder="Anything worth remembering about this day"></textarea></label>
+    </section>
+
+    <section class="u-card cy-hist" aria-labelledby="hist-h">
+      <h2 id="hist-h">History</h2>
+      <p id="h-empty">Your cycles will show here after you log two periods.</p>
+      <table id="h-table">
+        <thead><tr><th scope="col">Started</th><th scope="col">Cycle length</th><th scope="col">Period length</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <p id="h-avg"></p>
+      <div class="u-row cy-actions">
+        <button class="u-btn" id="csv">Export CSV</button>
+        <button class="u-btn" id="print">Print summary</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="u-foot">
+    Free forever. <a href="https://ko-fi.com/unsubbed" target="_blank" rel="noopener">Support development → ko-fi.com/unsubbed</a>
+    <br>Open source under AGPL-3.0 · Your files never leave your device.
+    <br><small class="u-legal">Flo and Clue are trademarks of their owners. Unsubbed is independent and not affiliated with or endorsed by them.</small>
+  </footer>
+
+  <dialog id="u-settings">
+    <form method="dialog">
+      <h2>Settings</h2>
+      <label class="u-field">
+        <span>Appearance</span>
+        <select name="theme">
+          <option value="system">Match my device</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+      <div id="app-settings">
+        <label class="u-field"><span>Typical cycle length (days)</span><input type="number" name="cycleLen" min="21" max="45" value="28"></label>
+        <label class="u-field"><span>Typical period length (days)</span><input type="number" name="periodLen" min="2" max="10" value="5"></label>
+        <label class="u-field"><span>Week starts on</span>
+          <select name="weekStart"><option value="1">Monday</option><option value="0">Sunday</option></select>
+        </label>
+        <p class="u-note">Used until you've logged enough periods for the app to learn your own rhythm.</p>
+        <button type="button" class="u-btn" id="lock">Save encrypted backup</button>
+        <p class="u-note">A copy locked with a passphrase. Without it nobody can read the file, and a lost passphrase can't be recovered.</p>
+      </div>
+      <hr>
+      <p class="u-note">Everything is stored only in this browser. Clearing it cannot be undone; save a copy first.</p>
+      <div class="u-row">
+        <button type="button" class="u-btn danger" data-clear>Clear data on this device</button>
+        <button class="u-btn primary">Done</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="pass">
+    <form method="dialog">
+      <h2>Passphrase</h2>
+      <label class="u-field"><span>Passphrase</span><input type="password" name="p1" required></label>
+      <label class="u-field" id="p2-wrap"><span>Type it again</span><input type="password" name="p2"></label>
+      <div class="u-row">
+        <button class="u-btn" value="cancel" formnovalidate>Cancel</button>
+        <button class="u-btn primary" value="ok">Continue</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="u-toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="kit.js"></script>
+  <script src="cycle.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
