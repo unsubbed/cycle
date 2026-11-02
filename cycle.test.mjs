@@ -117,3 +117,7 @@ test('a period still in progress does not shorten the average', () => {
   assert.equal(Cycle.stats(days, S, '2026-02-26').avgPeriod, 5);
   assert.equal(Cycle.stats(days, S, '2026-03-02').avgPeriod, Math.round(11 / 3)); // ended 3 days ago: counts
 });
+
+test('CSV guards a leading tab or carriage return too', () => {
+  assert.match(Cycle.toCSV({ '2026-01-01': { note: '\t=1+1' } }), /'\t=1\+1/);
+});

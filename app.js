@@ -21,12 +21,14 @@ const shiftMonth = (iso, n) => {
 };
 
 // Everything that comes from storage or a file passes through here (trust boundary).
+// a real calendar date: rejects 2025-99-99 and 2025-02-31, which would crash the date math
+const okDate = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && d >= '1900' && Date.parse(d) >= 0 && Cycle.addDays(d, 0) === d;
 const int = (v, lo, hi, d) => (Number.isInteger(+v) && +v >= lo && +v <= hi ? +v : d);
 function clean(s, base = DEFAULTS) {
   if (!s || typeof s.days !== 'object' || !s.days) throw new Error('No days in file');
   const out = {};
   for (const [d, x] of Object.entries(s.days)) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || !x || typeof x !== 'object') continue;
+    if (!okDate(d) || !x || typeof x !== 'object') continue;
     const e = {};
     if (FLOWS.some(([v]) => v && v === x.flow) && d <= Cycle.todayISO()) e.flow = x.flow; // future flow can't be real
     for (const [k, list] of [['body', BODY], ['mind', MIND]]) {
@@ -197,7 +199,7 @@ const kit = Unsubbed.app({
   accept: '.json',
   load(s) {
     try { ({ days, settings } = clean(s)); }
-    catch { localStorage.setItem('unsubbed:cycle:unreadable', JSON.stringify(s)); } // keep it; don't overwrite silently
+    catch {} // saved data without days holds nothing to keep: start empty
   },
   state,
   exportFile: () => ({ name: 'unsubbed-cycle.json', data: JSON.stringify(state(), null, 2), type: 'application/json' }),

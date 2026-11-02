@@ -67,7 +67,7 @@ const Cycle = (() => {
 
   function cell(v) {
     let s = String(v == null ? '' : v);
-    if (/^[=+\-@]/.test(s)) s = "'" + s; // spreadsheet formula safety
+    if (/^[\t\r=+\-@]/.test(s)) s = "'" + s; // spreadsheet formula safety
     return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   }
 
