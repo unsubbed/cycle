@@ -38,7 +38,7 @@ main.cy { max-width: 1180px; display: grid; gap: 1rem; grid-template-areas: "tod
 /* Calendar */
 .cy-calbar { display: flex; align-items: center; gap: .5rem; margin-bottom: .75rem; }
 .cy-calbar h2 { margin: 0 auto 0 0; order: -1; font-size: 1.25rem; }
-.cy-calbar .icon { font-size: 1.5rem; line-height: 1; }
+.cy-calbar .icon svg { width: 20px; height: 20px; }
 .cy-week, .cy-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .cy-week { margin-bottom: 4px; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); text-align: center; }
 .cy-d {
@@ -47,7 +47,7 @@ main.cy { max-width: 1180px; display: grid; gap: 1rem; grid-template-areas: "tod
 }
 .cy-d:hover { background: var(--accent-soft); }
 .cy-d .n { display: grid; place-items: center; width: 2.1em; height: 2.1em; border-radius: 8px; border: 2px solid transparent; font-variant-numeric: tabular-nums; }
-.cy-d.out { color: var(--muted); opacity: .55; }
+.cy-d.out { color: var(--muted); }
 .cy-d.fert { background: var(--hatch); }
 .cy-d.pred .n { border: 2px dashed var(--accent-strong); }
 .cy-d.light .n { background: color-mix(in oklab, var(--accent) 30%, var(--surface)); border-color: var(--accent-strong); }
@@ -82,7 +82,8 @@ main.cy { max-width: 1180px; display: grid; gap: 1rem; grid-template-areas: "tod
 #flow span { border-radius: 999px; }
 .cy-opts input:hover + span { border-color: var(--accent-line); }
 .cy-opts input:checked + span { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--accent-ink); }
-.cy-opts input:checked + span::before { content: "✓"; margin-right: .3rem; }
+/* drawn check mark, not a text glyph */
+.cy-opts input:checked + span::before { content: ""; width: .32em; height: .62em; margin: -.15em .5rem 0 0; border: solid currentColor; border-width: 0 2px 2px 0; transform: rotate(45deg); }
 #flow input:checked + span::before { content: none; }
 .cy-opts input:focus-visible + span { outline: 3px solid color-mix(in oklab, var(--accent) 60%, transparent); outline-offset: 2px; }
 .cy-day .u-field { margin: 0; }
@@ -93,6 +94,15 @@ main.cy { max-width: 1180px; display: grid; gap: 1rem; grid-template-areas: "tod
 .cy-hist td { padding: .4rem .5rem .4rem 0; border-bottom: 1px solid var(--line); }
 #h-avg { margin: .75rem 0; color: var(--muted); font-size: .875rem; }
 .cy-actions { justify-content: flex-start; }
+
+/* Phones: tighter header so "Unsubbed Cycle" fits beside the four buttons */
+@media screen and (max-width: 430px) {
+  .u-bar { gap: .25rem; padding-inline: .625rem; }
+  .u-brand { gap: .375rem; }
+  .u-brand img { width: 28px; height: 28px; }
+  .u-brand span { font-size: 1rem; letter-spacing: -.03em; }
+  .u-bar .u-btn { width: 38px; min-height: 38px; }
+}
 
 #app-settings > .u-btn { margin-top: .25rem; }
 
