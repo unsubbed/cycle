@@ -22,13 +22,13 @@ const shiftMonth = (iso, n) => {
 
 // Everything that comes from storage or a file passes through here (trust boundary).
 const int = (v, lo, hi, d) => (Number.isInteger(+v) && +v >= lo && +v <= hi ? +v : d);
-function clean(s) {
+function clean(s, base = DEFAULTS) {
   if (!s || typeof s.days !== 'object' || !s.days) throw new Error('No days in file');
   const out = {};
   for (const [d, x] of Object.entries(s.days)) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || !x || typeof x !== 'object') continue;
     const e = {};
-    if (FLOWS.some(([v]) => v && v === x.flow)) e.flow = x.flow;
+    if (FLOWS.some(([v]) => v && v === x.flow) && d <= Cycle.todayISO()) e.flow = x.flow; // future flow can't be real
     for (const [k, list] of [['body', BODY], ['mind', MIND]]) {
       const a = Array.isArray(x[k]) ? x[k].filter((v) => list.includes(v)) : [];
       if (a.length) e[k] = a;
@@ -39,7 +39,7 @@ function clean(s) {
   const t = s.settings || {};
   return {
     days: out,
-    settings: { cycleLen: int(t.cycleLen, 21, 45, 28), periodLen: int(t.periodLen, 2, 10, 5), weekStart: +t.weekStart === 0 ? 0 : 1 },
+    settings: { cycleLen: int(t.cycleLen, 21, 45, base.cycleLen), periodLen: int(t.periodLen, 2, 10, base.periodLen), weekStart: +t.weekStart === 0 ? 0 : 1 },
   };
 }
 const state = () => ({ app: 'unsubbed-cycle', version: 1, days, settings });
@@ -58,13 +58,13 @@ options($('#flow'), 'radio', FLOWS);
 options($('#body'), 'checkbox', BODY);
 options($('#mind'), 'checkbox', MIND);
 
-function setDay(patch, full = true) {
+function setDay(patch, redraw = render) {
   const e = { ...days[sel], ...patch };
   for (const k of Object.keys(e)) if (!e[k] || e[k].length === 0) delete e[k];
   if (Object.keys(e).length) days[sel] = e;
   else delete days[sel];
   kit.store();
-  full ? render() : renderCal();
+  if (redraw) redraw();
 }
 
 function render() {
@@ -195,7 +195,10 @@ const kit = Unsubbed.app({
   id: 'cycle',
   name: 'Unsubbed Cycle',
   accept: '.json',
-  load: (s) => ({ days, settings } = clean(s)),
+  load(s) {
+    try { ({ days, settings } = clean(s)); }
+    catch { localStorage.setItem('unsubbed:cycle:unreadable', JSON.stringify(s)); } // keep it; don't overwrite silently
+  },
   state,
   exportFile: () => ({ name: 'unsubbed-cycle.json', data: JSON.stringify(state(), null, 2), type: 'application/json' }),
   async importFile(file) {
@@ -224,7 +227,7 @@ $('#flow').onchange = (e) => {
 $('#body').onchange = $('#mind').onchange = (e) => {
   setDay({ [e.target.name]: [...document.querySelectorAll(`#${e.target.name} input:checked`)].map((i) => i.value) });
 };
-note.oninput = () => setDay({ note: note.value }, false);
+note.oninput = () => setDay({ note: note.value }, !days[sel]?.note !== !note.value ? renderCal : null);
 
 grid.onclick = (e) => {
   const b = e.target.closest('.cy-d');
@@ -245,7 +248,7 @@ $('#go-today').onclick = () => pick(Cycle.todayISO());
 
 appSettings.onchange = (e) => {
   if (!(e.target.name in DEFAULTS)) return;
-  settings = clean({ days: {}, settings: { ...settings, [e.target.name]: e.target.value } }).settings;
+  settings = clean({ days: {}, settings: { ...settings, [e.target.name]: e.target.value } }, settings).settings;
   e.target.value = settings[e.target.name];
   kit.store();
   render();
@@ -265,13 +268,16 @@ lockBtn.onclick = async () => {
 $('#csv').onclick = () => (Object.keys(days).length
   ? kit.download('unsubbed-cycle.csv', Cycle.toCSV(days), 'text/csv') : kit.toast('Nothing logged yet'));
 $('#print').onclick = () => print();
+let screenView;
 addEventListener('beforeprint', () => {
+  screenView = view;
   view = monthStart(Cycle.todayISO());
   renderCal();
   const prev = monthStart(view, -1);
   $('#prev-h').textContent = fmt(prev, { month: 'long', year: 'numeric' });
   month($('#grid-prev'), prev, false);
 });
+addEventListener('afterprint', () => ((view = screenView), renderCal()));
 
 showSettings();
 render();

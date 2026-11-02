@@ -30,7 +30,9 @@ const Cycle = (() => {
     const all = ps.map((p, i) => ({ start: p.start, cycleLen: ps[i + 1] ? diff(p.start, ps[i + 1].start) : null, periodLen: p.length }));
     const valid = all.map((c) => c.cycleLen).filter((n) => n !== null && n >= 15 && n <= 60);
     const avgCycle = valid.length ? mean(valid.slice(-6)) : settings.cycleLen;
-    const avgPeriod = ps.length ? mean(ps.slice(-6).map((p) => p.length)) : settings.periodLen;
+    // a period still in progress would drag the average down, so only finished ones count
+    const done = ps.filter((p) => diff(addDays(p.start, p.length - 1), today) > 2);
+    const avgPeriod = done.length ? mean(done.slice(-6).map((p) => p.length)) : settings.periodLen;
     const cycles = all.slice(-12).reverse();
     const shown = cycles.map((c) => c.cycleLen).filter((n) => n !== null && n >= 15 && n <= 60);
     const range = shown.length ? [Math.min(...shown), Math.max(...shown)] : null;

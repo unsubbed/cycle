@@ -111,3 +111,9 @@ test('lock/unlock round trip and wrong pass', async () => {
   await assert.rejects(Cycle.unlock(file, 'wrong'));
   await assert.rejects(Cycle.unlock({ app: 'other' }, 'x'));
 });
+
+test('a period still in progress does not shorten the average', () => {
+  const days = { ...log('2026-01-01', 5), ...log('2026-01-29', 5), ...log('2026-02-26', 1) };
+  assert.equal(Cycle.stats(days, S, '2026-02-26').avgPeriod, 5);
+  assert.equal(Cycle.stats(days, S, '2026-03-02').avgPeriod, Math.round(11 / 3)); // ended 3 days ago: counts
+});
